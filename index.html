@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tony Demo</title>
+<style>
+    body {
+	display: flex; justify-content: center; min-height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #4a6cf7, #6a89cc);
+        color: white;
+        text-align: center;
+    }
+    .container {
+        margin-top: 120px;
+    }
+    h1 {
+        font-size: 48px;
+        margin-bottom: 10px;
+    }
+    p {
+        font-size: 20px;
+        opacity: 0.9;
+    }
+    .card {
+        margin: 40px auto;
+        padding: 30px;
+        width: 400px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    input {
+        width: 80%;
+        padding: 10px;
+        margin: 10px 0;
+        border: none;
+        border-radius: 6px;
+    }
+    button {
+        padding: 10px 20px;
+        background: #00d2ff;
+        border: none;
+        border-radius: 6px;
+        color: black;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #00a8cc;
+    }
+    .footer {
+        margin-top: 80px;
+        font-size: 14px;
+        opacity: 0.7;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Hello Refine!</h1>
+    <p>Welcome to PolarisOffice Demo Environment</p>
+
+<div class="card">
+    <h2>Login Simulation</h2>
+    <input type="text" placeholder="Username"><br>
+    <input type="password" placeholder="Password"><br>
+    <button onclick="login()">Login</button>
+</div>
+
+<div class="footer">
+    © Polaris Office - Demo Environment
+
+</div>
+
+</div>
+
+<script>
+function login() {
+    alert("Login attempt logged!");
+}
+</script>
+
+</body>
+</html>
