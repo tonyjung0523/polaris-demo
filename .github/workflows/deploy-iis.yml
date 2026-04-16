@@ -1,24 +1,16 @@
 name: Deploy IIS index.html
 
 on:
-  workflow_dispatch:
-    inputs:
-      jira_issue_key:
-        description: "Jira issue key"
-        required: true
-        type: string
-      target_path:
-        description: "Deployment target path"
-        required: true
-        default: 'C:\inetpub\wwwroot\index.html'
-        type: string
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: [self-hosted, windows, web-prod]
 
     steps:
-      - name: Checkout repository
+      - name: Checkout main branch
         uses: actions/checkout@v4
 
       - name: Validate source file
@@ -32,7 +24,7 @@ jobs:
       - name: Backup existing file
         shell: powershell
         run: |
-          $target = "${{ inputs.target_path }}"
+          $target = "C:\inetpub\wwwroot\index.html"
           if (Test-Path $target) {
             $backupDir = "C:\deploy-backup"
             if (-not (Test-Path $backupDir)) {
@@ -45,21 +37,25 @@ jobs:
       - name: Deploy index.html
         shell: powershell
         run: |
-          $target = "${{ inputs.target_path }}"
+          $target = "C:\inetpub\wwwroot\index.html"
           Copy-Item ".\index.html" $target -Force
 
       - name: Verify deployment
         shell: powershell
         run: |
-          $target = "${{ inputs.target_path }}"
+          $target = "C:\inetpub\wwwroot\index.html"
           if (-not (Test-Path $target)) {
             Write-Error "Deployment failed. Target file not found."
             exit 1
           }
+
           Get-Item $target | Format-List FullName, Length, LastWriteTime
 
       - name: Emit deployment summary
+        if: always()
         shell: powershell
         run: |
-          "Deployed by Jira issue: ${{ inputs.jira_issue_key }}" >> $env:GITHUB_STEP_SUMMARY
-          "Target path: ${{ inputs.target_path }}" >> $env:GITHUB_STEP_SUMMARY
+          "Deployment completed." >> $env:GITHUB_STEP_SUMMARY
+          "Branch: ${{ github.ref_name }}" >> $env:GITHUB_STEP_SUMMARY
+          "Commit: ${{ github.sha }}" >> $env:GITHUB_STEP_SUMMARY
+          "Target path: C:\inetpub\wwwroot\index.html" >> $env:GITHUB_STEP_SUMMARY
