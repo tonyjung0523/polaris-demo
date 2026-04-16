@@ -1,0 +1,65 @@
+name: Deploy IIS index.html
+
+on:
+  workflow_dispatch:
+    inputs:
+      jira_issue_key:
+        description: "Jira issue key"
+        required: true
+        type: string
+      target_path:
+        description: "Deployment target path"
+        required: true
+        default: 'C:\inetpub\wwwroot\index.html'
+        type: string
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, windows, web-prod]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate source file
+        shell: powershell
+        run: |
+          if (-not (Test-Path ".\index.html")) {
+            Write-Error "index.html not found in repository root."
+            exit 1
+          }
+
+      - name: Backup existing file
+        shell: powershell
+        run: |
+          $target = "${{ inputs.target_path }}"
+          if (Test-Path $target) {
+            $backupDir = "C:\deploy-backup"
+            if (-not (Test-Path $backupDir)) {
+              New-Item -ItemType Directory -Path $backupDir | Out-Null
+            }
+            $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+            Copy-Item $target "$backupDir\index_$timestamp.html" -Force
+          }
+
+      - name: Deploy index.html
+        shell: powershell
+        run: |
+          $target = "${{ inputs.target_path }}"
+          Copy-Item ".\index.html" $target -Force
+
+      - name: Verify deployment
+        shell: powershell
+        run: |
+          $target = "${{ inputs.target_path }}"
+          if (-not (Test-Path $target)) {
+            Write-Error "Deployment failed. Target file not found."
+            exit 1
+          }
+          Get-Item $target | Format-List FullName, Length, LastWriteTime
+
+      - name: Emit deployment summary
+        shell: powershell
+        run: |
+          "Deployed by Jira issue: ${{ inputs.jira_issue_key }}" >> $env:GITHUB_STEP_SUMMARY
+          "Target path: ${{ inputs.target_path }}" >> $env:GITHUB_STEP_SUMMARY
